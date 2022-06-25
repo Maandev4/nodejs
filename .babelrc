@@ -1,0 +1,16 @@
+{
+  "presets": [
+    "@babel/preset-env",
+    "@babel/preset-flow"
+  ],
+  "plugins": [
+    ["module-resolver", {
+      "root": ["./src"],
+      "alias": {
+        "framework": "./src/framework",
+        "app": "./src/app"
+      }
+    }],
+    ["@babel/plugin-transform-runtime"]
+  ]
+}
