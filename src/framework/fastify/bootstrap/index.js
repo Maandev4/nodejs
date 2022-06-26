@@ -1,40 +1,32 @@
 // @flow
 
-import fastify, { FastifyInstance } from 'fastify';
+import fastify from 'fastify';
 
-/**
- * Fastify server bootstrapper
- */
+// Types
+import type { FastifyInstance } from 'fastify';
+import type { IFastifyPlugin } from 'framework/loaders/fastify-plugin';
 
-// Custom modules
-const isDev = process.env.NODE_ENV !== 'production';
+// Utils
+import FastifyPluginLoader from 'framework/loaders/fastify-plugin';
 
-const {
-  SERVER_LOGGING = 'false',
-} = process.env;
-
-const bootstrapper = async (): Promise<FastifyInstance> => {
+export default async function bootstrapper (): Promise<FastifyInstance> {
   //<editor-fold desc="Fastify server/middleware configuration">
   // Require the framework and instantiate it
   const app = fastify<FastifyInstance>({
-    // Access log in console (comment following line to skip)
-    logger: isDev && SERVER_LOGGING !== 'false',
-    // Max JSON body request size in MB
-    bodyLimit: 2 * (1024 * 1024),
   });
 
-  // express like middleware handler
-  await app.register(require('@fastify/sensible'));
-  app.get('/', async ( req, reply ) => {
-    reply.notFound
-  });
+  //<editor-fold desc="Plugins loader">
+  const pluginLoader: IFastifyPlugin = FastifyPluginLoader(app);
+
+  await pluginLoader.registerPackages([
+    ['@fastify/sensible'],
+  ]);
+  await pluginLoader.registerDirectory([
+    'app/plugins',
+    'framework/fastify/plugins',
+  ]);
+  //</editor-fold>
+
   // Export as public
   return app;
 };
-
-export default bootstrapper;
-
-
-export function testing (  ) {
-
-}
