@@ -9,6 +9,12 @@
 import { access } from 'fs/promises';
 import path from 'path';
 
+
+/**
+ * @public
+ * @static
+ * Check that given file is accessible or not
+ */
 export async function checkPathAccess ( path: string ): Promise<boolean> {
   try {
     await access(path);
@@ -26,4 +32,22 @@ export async function checkPathAccess ( path: string ): Promise<boolean> {
 export function normalize ( str: string ): string {
   return path.resolve(str)
     .replace(/\\/g, '/');
+}
+
+/**
+ * @public
+ * @static
+ * Get normalized project's root path
+ */
+export function rootPath (): string {
+  return normalize(path.resolve(__dirname, '../../'));
+}
+
+/**
+ * @public
+ * @static
+ * Resolve to give a relative path by joining project's root path and creates an absolute file path
+ */
+export function resolveRelativePath ( ...parts: Array<string> ): string {
+  return normalize(path.resolve(path.join(rootPath(), ...parts)));
 }
