@@ -13,6 +13,8 @@ export interface IApplicationConfig {
   bootstrapFile: string | Array<string>;
   /** Application configuration file */
   configurationFile: string | Array<string>;
+  /** Application controllers directory or directories */
+  controllerNamespace: string | Array<string>;
   /** Components directories path */
   componentDir: string | Array<string>;
   /** Components load order / arrangement */

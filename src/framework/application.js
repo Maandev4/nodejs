@@ -13,11 +13,11 @@ import ApplicationComponent from 'framework/base/components';
 import { stringToArray } from 'framework/helpers/array-utils';
 
 export default async function Application (): Promise<FastifyServerInstance> {
-  //<editor-fold desc="Application configuration loader">
+  //<editor-fold desc="Application config loader">
   const config = Configuration({});
   await config.fromFile([
-    'framework/configuration/main.js',
-    ...stringToArray(config.getConfig('configurationFile', 'app/configuration/main.js')),
+    'framework/config/main.js',
+    ...stringToArray(config.getConfig('configurationFile', 'app/config/main.js')),
   ]);
   //</editor-fold>
 
@@ -34,8 +34,8 @@ export default async function Application (): Promise<FastifyServerInstance> {
 
   //<editor-fold desc="Bootstrapper loader">
   await Bootstrapper(app).fromFile([
-    'framework/fastify/bootstrap/server.js',
-    ...stringToArray(config.getConfig('bootstrapFile', 'app/bootstrap/server.js')),
+    'framework/config/bootstrap.js',
+    ...stringToArray(config.getConfig('bootstrapFile', 'app/config/bootstrap.js')),
   ]);
   //</editor-fold>
 
