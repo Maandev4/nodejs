@@ -6,7 +6,7 @@ import op from 'object-path';
 import Glob from 'glob';
 
 // Types
-import type { IApplicationConfiguration } from 'framework/loaders/application.configuration';
+import type { IApplicationConfiguration } from 'framework/base/configuration';
 import type { FastifyServerInstance } from 'framework/types/fastify.flow';
 import type { IApplicationComponent } from 'framework/types/component.flow';
 

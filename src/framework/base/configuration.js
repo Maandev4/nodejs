@@ -24,7 +24,7 @@ export interface IApplicationConfiguration {
   decorate ( fastify: FastifyServerInstance ): void;
 }
 
-export default function ApplicationConfiguration ( config: IApplicationConfig ): IApplicationConfiguration {
+export default function Configuration ( config: IApplicationConfig ): IApplicationConfiguration {
   const namespace: IApplicationConfiguration = {};
 
   let configuration = {...config};

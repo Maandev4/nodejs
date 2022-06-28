@@ -3,7 +3,7 @@ import { checkPathAccess, resolveRelativePath } from 'framework/helpers/path-uti
 // Types
 import type { FastifyServerInstance } from 'framework/types/fastify.flow';
 
-interface FastifyBootstrapperReturns {
+export interface IApplicationBootstrapper {
   /** Inject a bootstrapper from a file or files */
   fromFile ( path: Array<string> | string ): Promise<void>;
 
@@ -14,8 +14,8 @@ interface FastifyBootstrapperReturns {
 /**
  * Fastify bootstrapper files loader
  */
-export default function FastifyBootstrapper ( fastify: FastifyServerInstance ): FastifyBootstrapperReturns {
-  const bootstrapper: FastifyBootstrapperReturns = {};
+export default function Bootstrapper ( fastify: FastifyServerInstance ): IApplicationBootstrapper {
+  const bootstrapper: IApplicationBootstrapper = {};
   bootstrapper.fromFile = async path => {
     if ( typeof path !== 'string' && Array.isArray(path) ) {
       for await ( const file of path ) {
