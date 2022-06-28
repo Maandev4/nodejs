@@ -11,6 +11,8 @@ export interface IApplicationConfig {
   serverOptions: FastifyServerOptions;
   /** Application bootstrap file */
   bootstrapFile: string | Array<string>;
+  /** URL routes file */
+  routeFile: string | Array<string>;
   /** Application configuration file */
   configurationFile: string | Array<string>;
   /** Application controllers directory or directories */
