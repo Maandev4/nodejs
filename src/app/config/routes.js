@@ -3,7 +3,9 @@
 import type { UrlRouter } from 'framework/types/routes.flow';
 
 /**
- * Server routers
+ * @public
+ * @static
+ * Url rules
  * @example
  * {
  *   // Syntax: '[VERB] <route>': <controller>/<action>
@@ -14,7 +16,7 @@ import type { UrlRouter } from 'framework/types/routes.flow';
  *   '/user/delete/:id': {route: 'user/update', options: {...}}, // Route with advanced options
  * }
  */
-export default function routes (): UrlRouter {
+export default function rules (): UrlRouter {
   return {
     '/': 'site/index',
     '/test': {route: 'test/controller', options: {logLevel: 'info'}},

@@ -1,13 +1,12 @@
 import { is as R_is } from 'ramda';
 
 // Types
-import type { FastifyServerInstance } from 'framework/types/fastify.flow';
 import type { RuleConfig, UrlRouter } from 'framework/types/routes.flow';
 import type { IApplicationConfiguration } from 'framework/base/configuration';
 import type { RouteOptions } from 'fastify';
 
 // Utils
-import { stringToArray } from 'framework/helpers/array-utils';
+import { stringToArray, hasDuplicates, contains } from 'framework/helpers/array-utils';
 import { resolveRelativePath, checkPathAccess } from 'framework/helpers/path-utils';
 
 type ParsedRouteRule = {
@@ -18,8 +17,14 @@ type ParsedRouteRule = {
 }
 
 const PATTERN_PATH: RegExp = /^([a-z]([a-z0-9]|-[a-z0-9])*)(\/[a-z]([a-z0-9]|-[a-z0-9])*)+$/;
-const PATTERN_ROUTE: RegExp = /^((?<method>[A-Z]{3,}(\s*,\s*[A-Z]{3,5}))*\s+)*(?<route>(\/([a-z][-a-z0-9]*)+)+(\/:[a-z][a-z0-9_]*)*|\/|(\/:[a-z][a-z0-9_]*))$/;
+const PATTERN_ROUTE: RegExp = /^((?<method>[A-Z]{3,}(\s*,\s*[A-Z]{3,5})*)*\s+)*(?<route>(\/([a-z][-a-z0-9]*)+)+(\/:[a-z][a-z0-9_]*)*|\/|(\/:[a-z][a-z0-9_]*))$/;
+const SUPPORTED_VERBS: Array<string> = ['DELETE', 'GET', 'HEAD', 'PATCH', 'POST', 'PUT', 'OPTIONS'];
 
+/**
+ * @private
+ * @static
+ * @internal
+ */
 const parsePathString = path => {
   if ( !path || !path.trim() ) {
     throw new Error('Rule params cannot be empty');
@@ -34,6 +39,11 @@ const parsePathString = path => {
   };
 };
 
+/**
+ * @private
+ * @static
+ * @internal
+ */
 const parseRoutePath = ( path: RuleConfig ): ParsedRouteRule => {
   if ( typeof path === 'string' ) {
     return parsePathString(path);
@@ -49,6 +59,11 @@ const parseRoutePath = ( path: RuleConfig ): ParsedRouteRule => {
   };
 };
 
+/**
+ * @private
+ * @static
+ * @internal
+ */
 const parseRule = ( rule: string ): ParsedRouteRule => {
   if ( !PATTERN_ROUTE.test(rule) ) {
     throw new Error(`Invalid route params: '${rule}'`);
@@ -56,12 +71,27 @@ const parseRule = ( rule: string ): ParsedRouteRule => {
 
   const {route, method = null} = {...rule.match(PATTERN_ROUTE).groups};
 
+  const methods: Array<string> = !method ? ['GET'] : method.replace(/[^A-Z,]+/g, '').split(',');
+
+  if ( hasDuplicates(methods) ) {
+    throw new Error(`Rule contains duplicate HTTP verbs: '${rule}'`);
+  }
+
+  if ( contains(SUPPORTED_VERBS, methods) ) {
+    throw new Error(`Rule contains invalid HTTP verb: '${rule}'`);
+  }
+
   return {
     route,
-    methods: !method ? ['GET'] : method.replace(/[^A-Z,]+/, '').split(','),
+    methods,
   };
 };
 
+/**
+ * @private
+ * @static
+ * @internal
+ */
 async function createRouteFromRule ( rule: string, config: RuleConfig ): Promise<ParsedRouteRule> {
   if ( !(R_is(String, config) || R_is(Object, config)) ) {
     throw new Error('Rule options type must be a String or Object');
@@ -78,6 +108,11 @@ async function createRouteFromRule ( rule: string, config: RuleConfig ): Promise
   };
 }
 
+/**
+ * @private
+ * @static
+ * @internal
+ */
 async function parseRoutes ( rules: UrlRouter ): Promise<Array<[string, Object]>> {
   const registry: Array<RouteOptions> = [];
   const rulesList: Array<string> = [];
@@ -96,6 +131,12 @@ async function parseRoutes ( rules: UrlRouter ): Promise<Array<[string, Object]>
   return registry;
 }
 
+/**
+ * @private
+ * @static
+ * @internal
+ * Load routes files and parse rules
+ */
 async function loadRoutesFile ( files: Array<string> ): Promise<UrlRouter> {
   const registry = [];
 
@@ -117,11 +158,7 @@ async function loadRoutesFile ( files: Array<string> ): Promise<UrlRouter> {
   return registry;
 }
 
-export async function initialize ( app: FastifyServerInstance, config: IApplicationConfiguration ) {
+export async function processRoutes ( config: IApplicationConfiguration ) {
   const files: Array<string> = stringToArray(config.getConfig('routeFile', 'app/config/routes.js'));
-
-  const routes: Array<ParsedRouteRule> = await loadRoutesFile(files);
-
-  // TODO: Implement routes processing logic here
-  // console.log('Routes: ', routes);
+  return loadRoutesFile(files);
 }

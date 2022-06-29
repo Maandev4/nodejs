@@ -11,7 +11,7 @@
 import dotenv from 'dotenv';
 
 // Types
-import type { FastifyInstance } from 'fastify';
+import type { FastifyServerInstance } from 'framework/types/fastify.flow';
 
 dotenv.config();
 
@@ -27,11 +27,12 @@ const {
 // Server initializer and kick starter
 (async () => {
   // Create and initialize fastify instance
-  const app: FastifyInstance = await Application();
+  const app = new Application();
+  await app.initialize();
 
   try {
     // Try to boot server
-    await app.listen({
+    await app.getInstance().listen({
       host: SERVER_ADDRESS,
       port: SERVER_PORT,
     });
@@ -39,7 +40,7 @@ const {
     console.log(`Server listing on http://${SERVER_ADDRESS}:${SERVER_PORT}`);
   } catch ( err ) {
     console.log(err);
-    app.log.error(err);
+    app.getInstance().log.error(err);
     process.exit(1);
   }
 })();

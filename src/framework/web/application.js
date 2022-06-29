@@ -11,9 +11,10 @@ import Configuration from 'framework/base/configuration';
 import { stringToArray } from 'framework/helpers/array-utils';
 import ApplicationComponent from 'framework/base/components';
 import Bootstrapper from 'framework/base/bootstrapper';
-import * as UrlManager from 'framework/web/url-manager';
+import { mapControllers } from 'framework/web/map-controllers';
+import { Component } from 'framework/base/component';
 
-export default class WebApplication {
+export default class WebApplication extends Component {
   #config: IApplicationConfiguration;
   #app: FastifyServerInstance;
 
@@ -24,7 +25,7 @@ export default class WebApplication {
   async #postInit (): Promise<void> {
     await this.#initializeBootstraps();
     await this.#initializeComponents();
-    await this.#initializeUrlManager();
+    await mapControllers(this.#app, this.#config);
   }
 
   getInstance (): FastifyServerInstance {
@@ -65,17 +66,13 @@ export default class WebApplication {
     ]);
   }
 
-  async #initializeUrlManager (): Promise<void> {
-    await UrlManager.initialize(this.#app, this.#config);
-  }
-
   /**
    * @async
    * @public
    * @static
    * Create application instance
    */
-  async createInstance (): Promise<void> {
+  async initialize (): Promise<void> {
     await this.#preInit();
     this.#initializeApp();
     await this.#postInit();

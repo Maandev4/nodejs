@@ -1,6 +1,6 @@
 // @flow
 
-import type { FastifyServerInstance } from 'framework/types/fastify.flow';
+import type { FastifyServerInstance, RequestInstance, ReplyInstance } from 'framework/types/fastify.flow';
 
 export interface IControllerInternal {
   /** The ID of this controller */
@@ -15,7 +15,23 @@ export interface IControllerInternal {
 }
 
 export interface Controller {
+  /**
+   * Fastify application instance
+   * @readonly
+   */
   -app: FastifyServerInstance;
+
+  /**
+   * Request instance
+   * @readonly
+   */
+  -request: RequestInstance;
+
+  /**
+   * Reply instance
+   * @readonly
+   */
+  -reply: ReplyInstance;
 
   behaviours (): Promise<void>;
 
