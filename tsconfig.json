@@ -1,0 +1,19 @@
+{
+  "extends": "@tsconfig/node16/tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "outDir": "./dist",
+    "paths": {
+      "framework/*": ["./framework/*"],
+      "app/*": ["./app/*"]
+    },
+    "target": "ES5",
+    "strict": true,
+    "noImplicitAny": true,
+    "module": "CommonJS",
+    "moduleResolution": "Node16",
+    "sourceMap": true,
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}

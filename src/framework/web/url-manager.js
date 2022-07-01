@@ -16,8 +16,8 @@ type ParsedRouteRule = {
   options?: RouteOptions;
 }
 
-const PATTERN_PATH: RegExp = /^([a-z]([a-z0-9]|-[a-z0-9])*)(\/[a-z]([a-z0-9]|-[a-z0-9])*)+$/;
-const PATTERN_ROUTE: RegExp = /^((?<method>[A-Z]{3,}(\s*,\s*[A-Z]{3,5})*)*\s+)*(?<route>(\/([a-z][-a-z0-9]*)+)+(\/:[a-z][a-z0-9_]*)*|\/|(\/:[a-z][a-z0-9_]*))$/;
+const PATTERN_PATH = /^([a-z]([a-z0-9]|-[a-z0-9])*)(\/[a-z]([a-z0-9]|-[a-z0-9])*)+$/;
+const PATTERN_ROUTE = /^((?<method>[A-Z]{3,}(\s*,\s*[A-Z]{3,5})*)*\s+)*(?<route>(\/([a-z][-a-z0-9]*)+)+(\/:[a-z][a-z0-9_]*)*|\/|(\/:[a-z][a-z0-9_]*))$/;
 const SUPPORTED_VERBS: Array<string> = ['DELETE', 'GET', 'HEAD', 'PATCH', 'POST', 'PUT', 'OPTIONS'];
 
 /**
