@@ -68,7 +68,7 @@ export default class CoreObject implements ICoreObject {
    * public constructor (param1, param2, ..., config = {})
    * {
    *     ...
-   *     super.constructor($config);
+   *     super.constructor(config);
    * }
    * ```
    *
