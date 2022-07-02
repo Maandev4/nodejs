@@ -10,9 +10,6 @@
 
 import dotenv from 'dotenv';
 
-// Types
-import type { FastifyServerInstance } from 'framework/types/fastify.flow';
-
 dotenv.config();
 
 // Utils

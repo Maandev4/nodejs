@@ -12,7 +12,7 @@ import { stringToArray } from 'framework/helpers/array-utils';
 import ApplicationComponent from 'framework/base/components';
 import Bootstrapper from 'framework/base/bootstrapper';
 import { mapControllers } from 'framework/web/map-controllers';
-import { Component } from 'framework/base/component';
+//import { Component } from 'framework/base/component';
 
 export default class WebApplication extends Component {
   #config: IApplicationConfiguration;
