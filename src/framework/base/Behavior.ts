@@ -1,6 +1,14 @@
-// Core
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @link https://github.com/blacksmoke26 Author Website
+ * @since 2022-07-01
+ */
+
 import Component from 'framework/base/Component';
 import BaseObject from 'framework/base/BaseObject';
+
+// Types
+export type BehaviorMap = { [key: string]: Function };
 
 /**
  * Behavior is the base class for all behavior classes.
@@ -19,7 +27,7 @@ export default class Behavior extends BaseObject {
   /**
    * Attached events handlers
    */
-  private _attachedEvents: { [key: string]: Function } = {};
+  private _attachedEvents: BehaviorMap = {};
 
   /**
    * Declares event handlers for the [[owner]]'s events.
@@ -33,13 +41,13 @@ export default class Behavior extends BaseObject {
    *
    * @example
    * {
-   *     Model::EVENT_BEFORE_VALIDATE: 'myBeforeValidate',
-   *     Model::EVENT_AFTER_VALIDATE: 'myAfterValidate',
+   *     Model.EVENT_BEFORE_VALIDATE: 'myBeforeValidate',
+   *     Model.EVENT_AFTER_VALIDATE: 'myAfterValidate',
    * }
    *
-   * @return events (array keys) and the corresponding event handler methods (array values).
+   * @return The corresponding name and event handler methods.
    */
-  public events (): { [key: string]: Function } {
+  public events (): BehaviorMap {
     return {};
   }
 
@@ -68,7 +76,6 @@ export default class Behavior extends BaseObject {
   public detach (): void {
     if ( this.owner ) {
       for ( const [event, handler] of Object.entries(this._attachedEvents) ) {
-        this._attachedEvents[event] = handler;
         this.owner.off(event, handler);
       }
 
