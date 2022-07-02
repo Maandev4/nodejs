@@ -9,6 +9,7 @@ import BaseObject from 'framework/base/BaseObject';
 
 // Types
 export type BehaviorMap = { [key: string]: Function };
+export type BehaviorRegistry = { [name: string]: Behavior };
 
 /**
  * Behavior is the base class for all behavior classes.

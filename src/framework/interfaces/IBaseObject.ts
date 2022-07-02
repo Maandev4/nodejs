@@ -7,3 +7,11 @@
 export default interface IBaseObject {
   [key: string | symbol]: any;
 }
+
+export interface IRegistry {
+  [key: string | symbol]: string;
+}
+
+export interface IProperties {
+  [key: string | symbol]: any;
+}

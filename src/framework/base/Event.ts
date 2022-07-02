@@ -13,8 +13,8 @@ import BaseObject from 'framework/base/BaseObject';
 import CallbackHelper from 'framework/helpers/CallbackHelper';
 
 // Types
-type EventRegistry = [Function, any];
-type EventsMap = { [name: string]: Array<EventRegistry> };
+export type EventRegistry = [Function, any];
+export type EventsMap = { [name: string]: Array<EventRegistry> };
 
 /**
  * Event is the base class for all event classes.
@@ -86,7 +86,7 @@ export default class Event extends BaseObject {
     if ( append ) {
       Event._events[name].push([handler, data]);
     } else {
-      Event._events[name] = [[handler, data]];
+      Event._events[name].unshift([handler, data]);
     }
   }
 

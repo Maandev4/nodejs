@@ -16,8 +16,30 @@ export default class CallbackHelper {
   }
 
   /**
+   * Check that given value is actual a function, callback or async function
+   * @param value The value to testify
+   * @return Whatever a function or not
+   */
+  public static isActualFunction ( value: any ): boolean {
+    return CallbackHelper.isFunction(value)
+        || CallbackHelper.isSync(value)
+        || CallbackHelper.isAsync(value);
+  }
+
+  /**
+   * Check that given value is actual a function, callback or async function
+   * @param value The value to testify
+   * @return Whatever a function or not
+   */
+  public static isActualValue ( value: any ): boolean {
+    return !this.isActualFunction(value)
+      && !(value instanceof Promise);
+  }
+
+  /**
    * Check that given callback is async function or not
    * @param callback The callback to testify
+   * @return Whatever a function or not
    */
   public static isSync ( callback: any ): boolean {
     return CallbackHelper.isFunction(callback)
@@ -27,6 +49,7 @@ export default class CallbackHelper {
   /**
    * Check that given callback is async function or not
    * @param callback The callback to testify
+   * @return Whatever a function or not
    */
   public static isAsync ( callback: any ): boolean {
     return !CallbackHelper.isSync(callback)
@@ -36,6 +59,7 @@ export default class CallbackHelper {
   /**
    * Converts plain function into an async function
    * @param callback The callback to promisify
+   * @return Constructor of an 'AsyncFunction'
    */
   public static promisify ( callback: Function ): Function {
     return !CallbackHelper.isAsync(callback)
