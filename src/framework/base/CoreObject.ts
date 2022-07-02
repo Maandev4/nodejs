@@ -16,8 +16,37 @@ import CallbackHelper from 'framework/helpers/CallbackHelper';
 import UnknownPropertyError from 'framework/base/UnknownPropertyError';
 import InvalidCallError from 'framework/base/InvalidCallError';
 
+// Types
+export type Configuration = { [p: string | symbol]: any };
+
+/**
+ * BaseObject is the base class that implements the *property* feature.
+ *
+ * Besides the property feature, BaseObject also introduces an important object initialization life cycle. In particular,
+ * creating a new instance of BaseObject or its derived class will involve the following life cycles sequentially:
+ *
+ * 1. the class constructor is invoked;
+ * 2. object properties are initialized according to the given configuration;
+ * 3. the `init()` method is invoked.
+ *
+ * In the above, both Step 2 and 3 occur at the end of the class constructor. It is recommended that
+ * you perform object initialization in the `init()` method because at that stage, the object configuration
+ * is already applied.
+ *
+ * Property names are *case-insensitive*.
+ *
+ *
+ * That is, a `config` parameter (defaults to `{}`) should be declared as the last parameter
+ * of the constructor, and the parent implementation should be called at the end of the constructor.
+ *
+ */
 export default class CoreObject implements ICoreObject {
-  protected registry: IRegistry = {};
+  /**
+   * Properties internal registry to store scope like information
+   * +: is for write-only property
+   * -: is for read-only property
+   */
+  private registry: IRegistry = {};
 
   /**
    * Constructor.
@@ -32,15 +61,38 @@ export default class CoreObject implements ICoreObject {
    * - the last parameter of the constructor is a configuration array, like `config` here.
    * - call the parent implementation at the end of the constructor.
    *
+   * In order to ensure the above life cycles, if a child class of BaseObject needs to override the constructor,
+   * it should be done like the following:
+   *
+   * ```js
+   * public constructor (param1, param2, ..., config = {})
+   * {
+   *     ...
+   *     super.constructor($config);
+   * }
+   * ```
+   *
    * @param config Name-value pairs that will be used to initialize the object properties
    */
-  public constructor ( config: { [p: string | symbol]: any } = {} ) {
+  public constructor ( config: Configuration = {} ) {
+    this.construct(config);
+
     if ( Object.keys(config).length ) {
       App.configure(this, config);
       App.configureRegistry(this.registry, config);
     }
 
     this.init();
+  }
+
+  /**
+   * Pre-construct initialization.
+   * This method is invoked beginning of the constructor before the object is initialized with the
+   * given configuration.
+   * By overriding this method, you can manipulate configuration (e.g., add or remove config properties)
+   */
+  public construct ( config: Configuration = {} ): void {
+    // Overridden by its children
   }
 
   /**
