@@ -69,15 +69,17 @@ export default class Component extends BaseObject {
    * @see canSetProperty()
    */
   public hasProperty ( name: string | symbol, checkBehaviors = true ): boolean {
-    if ( !checkBehaviors ) {
-      return super.hasProperty(name);
+    if ( super.hasProperty(name) ) {
+      return true;
     }
 
-    this.ensureBehaviors();
+    if ( checkBehaviors ) {
+      this.ensureBehaviors();
 
-    for ( const behavior of Object.values(this._behaviors) ) {
-      if ( behavior.hasProperty(name) ) {
-        return true;
+      for ( const behavior of Object.values(this._behaviors) ) {
+        if ( behavior.hasProperty(name) ) {
+          return true;
+        }
       }
     }
 
@@ -92,15 +94,17 @@ export default class Component extends BaseObject {
    * @see canSetProperty()
    */
   public canGetProperty ( name: string | symbol, checkBehaviors = true ): boolean {
-    if ( !checkBehaviors ) {
-      return super.canGetProperty(name);
+    if ( super.canGetProperty(name) ) {
+      return true;
     }
 
-    this.ensureBehaviors();
+    if ( checkBehaviors ) {
+      this.ensureBehaviors();
 
-    for ( const behavior of Object.values(this._behaviors) ) {
-      if ( behavior.canGetProperty(name) ) {
-        return true;
+      for ( const behavior of Object.values(this._behaviors) ) {
+        if ( behavior.canGetProperty(name) ) {
+          return true;
+        }
       }
     }
 
@@ -115,15 +119,17 @@ export default class Component extends BaseObject {
    * @see canGetProperty()
    */
   public canSetProperty ( name: string | symbol, checkBehaviors: boolean = true ): boolean {
-    if ( !checkBehaviors ) {
-      return super.canSetProperty(name);
+    if ( super.canSetProperty(name) ) {
+      return true;
     }
 
-    this.ensureBehaviors();
+    if ( checkBehaviors ) {
+      this.ensureBehaviors();
 
-    for ( const behavior of Object.values(this._behaviors) ) {
-      if ( behavior.canSetProperty(name) ) {
-        return true;
+      for ( const behavior of Object.values(this._behaviors) ) {
+        if ( behavior.canSetProperty(name) ) {
+          return true;
+        }
       }
     }
 
@@ -137,15 +143,17 @@ export default class Component extends BaseObject {
    * @param checkBehaviors=true - Whether to treat behaviors' methods as methods of this component
    */
   public hasMethod ( name: string | symbol, checkBehaviors: boolean = true ): boolean {
-    if ( !checkBehaviors ) {
-      return super.hasMethod(name);
+    if ( super.hasMethod(name) ) {
+      return true;
     }
 
-    this.ensureBehaviors();
+    if ( checkBehaviors ) {
+      this.ensureBehaviors();
 
-    for ( const behavior of Object.values(this._behaviors) ) {
-      if ( behavior.hasMethod(name) ) {
-        return true;
+      for ( const behavior of Object.values(this._behaviors) ) {
+        if ( behavior.hasMethod(name) ) {
+          return true;
+        }
       }
     }
 
@@ -169,7 +177,7 @@ export default class Component extends BaseObject {
   public get ( name: string | symbol ): any {
     if ( this.hasProperty(name, false) ) {
       if ( !this.canGetProperty(name, false) ) {
-        throw new InvalidCallError(`Trying to get write-only property: '${(name as string)}'`);
+        throw new InvalidCallError(`Getting write-only property: ${(name as string)}'`);
       }
 
       return this[name];
@@ -180,13 +188,13 @@ export default class Component extends BaseObject {
     for ( const behavior of Object.values(this._behaviors) ) {
       if ( behavior.hasProperty(name) ) {
         if ( !behavior.canGetProperty(name) ) {
-          throw new InvalidCallError(`Trying to get write-only property: '${(name as string)}'`);
+          throw new InvalidCallError(`Getting write-only property: ${(name as string)}'`);
         }
         return behavior.get(name);
       }
     }
 
-    throw new UnknownPropertyError(`Trying to get unknown property: '${(name as string)}'`);
+    throw new UnknownPropertyError(`Getting unknown property: ${(name as string)}'`);
   }
 
   /**
@@ -206,7 +214,7 @@ export default class Component extends BaseObject {
   public set ( name: string | symbol, value: any ): void {
     if ( this.hasProperty(name, false) ) {
       if ( !this.canSetProperty(name, false) ) {
-        throw new InvalidCallError(`Trying to set read-only property: '${(name as string)}'`);
+        throw new InvalidCallError(`Setting read-only property: ${(name as string)}'`);
       }
       this[name] = value;
       return;
@@ -217,14 +225,14 @@ export default class Component extends BaseObject {
     for ( const behavior of Object.values(this._behaviors) ) {
       if ( behavior.hasProperty(name) ) {
         if ( !this.canSetProperty(name, false) ) {
-          throw new InvalidCallError(`Trying to set read-only property: '${(name as string)}'`);
+          throw new InvalidCallError(`Setting read-only property: ${(name as string)}'`);
         }
         behavior.set(name, value);
         return;
       }
     }
 
-    throw new UnknownPropertyError(`Trying to set unknown property: '${(name as string)}'`);
+    throw new UnknownPropertyError(`Setting unknown property: ${(name as string)}'`);
   }
 
   /**
@@ -263,7 +271,7 @@ export default class Component extends BaseObject {
   public unset ( name: string | symbol, checkBehaviors: boolean = true ) {
     if ( this.hasProperty(name, false) ) {
       if ( !this.canSetProperty(name, false) ) {
-        throw new InvalidCallError(`Trying to remove read-only property: '${(name as string)}'`);
+        throw new InvalidCallError(`Setting read-only property: '${(name as string)}'`);
       }
 
       this[name] = null;
@@ -284,7 +292,7 @@ export default class Component extends BaseObject {
 
       if ( holder !== null ) {
         if ( holder.canSetProperty(name) ) {
-          throw new InvalidCallError(`Trying to remove read-only property: '${(name as string)}'`);
+          throw new InvalidCallError(`Setting read-only property: '${(name as string)}'`);
         }
 
         holder.unset(name);
@@ -292,7 +300,7 @@ export default class Component extends BaseObject {
       }
     }
 
-    throw new UnknownPropertyError(`Trying to remove unknown property: '${(name as string)}'`);
+    throw new UnknownPropertyError(`Setting unknown property: '${(name as string)}'`);
   }
 
   /**
