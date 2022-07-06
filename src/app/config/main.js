@@ -6,5 +6,9 @@ export default async function (): Promise<IApplicationConfig> {
     controllerNamespace: 'app/controllers',
     bootstrapFile: 'app/config/main.js',
     routeFile: 'app/config/routes.js',
+    componentCatalogue: [
+      'test',
+      'cors',
+    ]
   };
 }

@@ -10,8 +10,8 @@ import * as Op from 'object-path';
 import BaseObject from 'framework/base/BaseObject';
 import Event, { EventRegistry, EventsMap } from 'framework/base/Event';
 import Behavior, { BehaviorRegistry } from 'framework/base/Behavior';
-import UnknownPropertyError from 'framework/base/UnknownPropertyError';
-import InvalidCallError from 'framework/base/InvalidCallError';
+import UnknownPropertyException from 'framework/base/UnknownPropertyException';
+import InvalidCallException from 'framework/base/InvalidCallException';
 
 // Helpers
 import CallbackHelper from 'framework/helpers/CallbackHelper';
@@ -59,6 +59,13 @@ export default class Component extends BaseObject {
    * The attached behaviors (behavior name => behavior). This is `null` when not initialized.
    */
   private _behaviors: BehaviorRegistry = {};
+
+  /**
+   * Full qualified namespace
+   */
+  get namespace (): string {
+    return 'framework/base/Component';
+  }
 
   /**
    * Returns a value indicating whether a property is defined.
@@ -171,13 +178,13 @@ export default class Component extends BaseObject {
    * @param name the property name
    * @return mixed the property value
    * @throws UnknownPropertyError if the property is not defined
-   * @throws InvalidCallError if the property is write-only
+   * @throws {InvalidCallException} if the property is write-only
    * @see __set()
    */
   public get ( name: string | symbol ): any {
     if ( this.hasProperty(name, false) ) {
       if ( !this.canGetProperty(name, false) ) {
-        throw new InvalidCallError(`Getting write-only property: ${(name as string)}'`);
+        throw new InvalidCallException(`Getting write-only property: ${(name as string)}'`);
       }
 
       return this[name];
@@ -188,13 +195,13 @@ export default class Component extends BaseObject {
     for ( const behavior of Object.values(this._behaviors) ) {
       if ( behavior.hasProperty(name) ) {
         if ( !behavior.canGetProperty(name) ) {
-          throw new InvalidCallError(`Getting write-only property: ${(name as string)}'`);
+          throw new InvalidCallException(`Getting write-only property: ${(name as string)}'`);
         }
         return behavior.get(name);
       }
     }
 
-    throw new UnknownPropertyError(`Getting unknown property: ${(name as string)}'`);
+    throw new UnknownPropertyException(`Getting unknown property: ${(name as string)}'`);
   }
 
   /**
@@ -214,7 +221,7 @@ export default class Component extends BaseObject {
   public set ( name: string | symbol, value: any ): void {
     if ( this.hasProperty(name, false) ) {
       if ( !this.canSetProperty(name, false) ) {
-        throw new InvalidCallError(`Setting read-only property: ${(name as string)}'`);
+        throw new InvalidCallException(`Setting read-only property: ${(name as string)}'`);
       }
       this[name] = value;
       return;
@@ -225,14 +232,14 @@ export default class Component extends BaseObject {
     for ( const behavior of Object.values(this._behaviors) ) {
       if ( behavior.hasProperty(name) ) {
         if ( !this.canSetProperty(name, false) ) {
-          throw new InvalidCallError(`Setting read-only property: ${(name as string)}'`);
+          throw new InvalidCallException(`Setting read-only property: ${(name as string)}'`);
         }
         behavior.set(name, value);
         return;
       }
     }
 
-    throw new UnknownPropertyError(`Setting unknown property: ${(name as string)}'`);
+    throw new UnknownPropertyException(`Setting unknown property: ${(name as string)}'`);
   }
 
   /**
@@ -245,8 +252,8 @@ export default class Component extends BaseObject {
    *  - return `false` for non-existing properties
    *
    * @param name the property name
-   * @param checkBehaviors=true - Whether to treat behaviors' properties as properties of this component
-   * @throws UnknownPropertyException if the property is not defined
+   * @param [checkBehaviors=true] - Whether to treat behaviors' properties as properties of this component
+   * @throws {UnknownPropertyException} if the property is not defined
    * @throws InvalidCallError if the property is read-only
    * @see __set()
    */
@@ -271,7 +278,7 @@ export default class Component extends BaseObject {
   public unset ( name: string | symbol, checkBehaviors: boolean = true ) {
     if ( this.hasProperty(name, false) ) {
       if ( !this.canSetProperty(name, false) ) {
-        throw new InvalidCallError(`Setting read-only property: '${(name as string)}'`);
+        throw new InvalidCallException(`Setting read-only property: '${(name as string)}'`);
       }
 
       this[name] = null;
@@ -292,7 +299,7 @@ export default class Component extends BaseObject {
 
       if ( holder !== null ) {
         if ( holder.canSetProperty(name) ) {
-          throw new InvalidCallError(`Setting read-only property: '${(name as string)}'`);
+          throw new InvalidCallException(`Setting read-only property: '${(name as string)}'`);
         }
 
         holder.unset(name);
@@ -300,7 +307,7 @@ export default class Component extends BaseObject {
       }
     }
 
-    throw new UnknownPropertyError(`Setting unknown property: '${(name as string)}'`);
+    throw new UnknownPropertyException(`Setting unknown property: '${(name as string)}'`);
   }
 
   /**
@@ -411,8 +418,8 @@ export default class Component extends BaseObject {
    * Triggers a class-level event.
    * This method will cause invocation of event handlers that are attached to the named event
    *
-   * @param name The event name.
-   * @param event The event parameter, If not set, a default [[Event]] object will be created.
+   * @param name - The event name.
+   * @param event - The event parameter, If not set, a default {@link Event} object will be created.
    */
   public async trigger ( name, event: Event | null = null ) {
     this.ensureBehaviors();

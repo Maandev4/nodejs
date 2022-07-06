@@ -20,8 +20,7 @@ export type EventsMap = { [name: string]: Array<EventRegistry> };
  * Event is the base class for all event classes.
  *
  * It encapsulates the parameters associated with an event.
- * The [[sender]] property describes who raises the event.
- * And the [[handled]] property indicates if the event is handled.
+ * And the {@link handled} property indicates if the event is handled.
  * If an event handler sets [[handled]] to be `true`, the rest of the
  * uninvoked handlers will no longer be called to handle the event.
  *
@@ -47,6 +46,13 @@ export default class Event extends BaseObject {
    * Note that this varies according to which event handler is currently executing.
    */
   public data: any = null;
+
+  /**
+   * Full qualified namespace
+   */
+  get namespace (): string {
+    return 'framework/base/Event';
+  }
 
   /**
    * Contains all globally registered event handlers.

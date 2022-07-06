@@ -8,13 +8,17 @@
 import * as Op from 'object-path';
 
 // Core
-import App from 'framework/web/App';
+import App from 'framework/App';
 
 // Interfaces
 import ICoreObject, { IRegistry } from 'framework/interfaces/IBaseObject';
+
+// Exceptions
+import UnknownPropertyException from 'framework/base/UnknownPropertyException';
+import InvalidCallException from 'framework/base/InvalidCallException';
+
+// Helpers
 import CallbackHelper from 'framework/helpers/CallbackHelper';
-import UnknownPropertyError from 'framework/base/UnknownPropertyError';
-import InvalidCallError from 'framework/base/InvalidCallError';
 
 // Types
 export type Configuration = { [p: string | symbol]: any };
@@ -47,6 +51,13 @@ export default class CoreObject implements ICoreObject {
    * -: is for read-only property
    */
   private registry: IRegistry = {};
+
+  /**
+   * Full qualified namespace
+   */
+  get namespace (): string {
+    return 'framework/base/CoreObject';
+  }
 
   /**
    * Constructor.
@@ -114,11 +125,11 @@ export default class CoreObject implements ICoreObject {
    */
   public get ( name: string | symbol ): any {
     if ( !this.hasProperty(name) ) {
-      throw new UnknownPropertyError(`Trying to get unknown property: '${(name as string)}'`);
+      throw new UnknownPropertyException(`Trying to get unknown property: '${(name as string)}'`);
     }
 
     if ( !this.canGetProperty(name) ) {
-      throw new InvalidCallError(`Trying to get write-only property: '${(name as string)}'`);
+      throw new InvalidCallException(`Trying to get write-only property: '${(name as string)}'`);
     }
 
     return this[name];
@@ -135,11 +146,12 @@ export default class CoreObject implements ICoreObject {
    */
   public set ( name: string | symbol, value: any ): void {
     if ( !this.hasProperty(name) ) {
-      throw new UnknownPropertyError(`Trying to set unknown property: '${(name as string)}'`);
+      throw new UnknownPropertyException(`Trying to set unknown property: '${name as string}'`);
     }
 
+    console.log('name', name);
     if ( !this.canSetProperty(name) ) {
-      throw new InvalidCallError(`Trying to set read-only property: '${(name as string)}'`);
+      throw new InvalidCallException(`Trying to set read-only property: '${name as string}'`);
     }
 
     this[name] = value;
@@ -158,11 +170,11 @@ export default class CoreObject implements ICoreObject {
    */
   public unset ( name: string | symbol ): void {
     if ( !this.hasProperty(name) ) {
-      throw new UnknownPropertyError(`Trying to set unknown property: '${(name as string)}'`);
+      throw new UnknownPropertyException(`Trying to set unknown property: '${(name as string)}'`);
     }
 
     if ( this.canSetProperty(name) ) {
-      throw new InvalidCallError(`Trying to remove read-only property: '${(name as string)}'`);
+      throw new InvalidCallException(`Trying to remove read-only property: '${(name as string)}'`);
     }
 
     this[name] = null;

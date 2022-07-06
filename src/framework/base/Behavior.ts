@@ -31,6 +31,13 @@ export default class Behavior extends BaseObject {
   private _attachedEvents: BehaviorMap = {};
 
   /**
+   * Full qualified namespace
+   */
+  get namespace (): string {
+    return 'framework/base/Behavior';
+  }
+
+  /**
    * Declares event handlers for the [[owner]]'s events.
    *
    * Child classes may override this method to declare what PHP callbacks should

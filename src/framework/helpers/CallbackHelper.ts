@@ -4,8 +4,11 @@
  * @since 2022-07-02
  */
 
-import Util from 'util';
+import Util from 'node:util';
 
+/**
+ * Callback/Function helper.
+ */
 export default class CallbackHelper {
   /**
    * Check that given callback is function or not
@@ -22,8 +25,8 @@ export default class CallbackHelper {
    */
   public static isActualFunction ( value: any ): boolean {
     return CallbackHelper.isFunction(value)
-        || CallbackHelper.isSync(value)
-        || CallbackHelper.isAsync(value);
+      || CallbackHelper.isSync(value)
+      || CallbackHelper.isAsync(value);
   }
 
   /**
