@@ -20,9 +20,8 @@ import NamespaceHelper from 'framework/helpers/NamespaceHelper';
 import NotInstantiableException from 'framework/base/NotInstantiableException';
 
 // Interfaces
-import { DefinitionRegistry, SingletonRegistry, DefinitionType, Definition } from 'framework/di/Container.d';
-import { ParamRegistry, Paramters } from 'framework/di/Container.d';
-import { Configuration } from 'framework/base/CoreObject';
+import { DefinitionRegistry, SingletonRegistry, DefinitionType, Definition, SingletonBatch } from 'framework/di/Container.d';
+import { ParamRegistry, Parameters } from 'framework/di/Container.d';
 
 /**
  * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
@@ -65,8 +64,13 @@ export default class Container extends Component {
     return 'framework/di/Container';
   }
 
-  private splitConfigList ( configuration: Array<any> = [{}] ): { args: Array<any>, params: Paramters } {
-    let params: Paramters = {};
+  /**
+   * Split given configuration into function args and config data
+   * @param configuration - Arguments contains config data (config should be the last one)
+   * @returns Parted data
+   */
+  private static splitConfigList ( configuration: Array<any> = [{}] ): { args: Array<any>, params: Parameters } {
+    let params: Parameters = {};
     let args: Array<any> = [];
 
     if ( configuration.length > 1 ) {
@@ -91,14 +95,14 @@ export default class Container extends Component {
    * only if the class is instantiated for the first time.
    *
    * @param namespace - Namespace, or an alias name (e.g. `foo`) that was previously
-   * registered via [[set()]] or [[setSingleton()]].
+   * registered via {@link set()} or [[setSingleton()]].
    * @param configuration=[{}] - A list of constructor parameter values (Last element should be configuration)
    * @return Sn instance of the requested class.
    * @throws {InvalidConfigException} if the namespace cannot be recognized or correspond to an invalid definition
    * @throws {NotInstantiableException} - If resolved to an abstract or no-component
    */
   public get<T> ( namespace: string, configuration: Array<any> = [{}] ): T {
-    const {args, params} = this.splitConfigList(configuration);
+    const {args, params} = Container.splitConfigList(configuration);
 
     if ( namespace in this._singletons ) {
       return this._singletons[namespace];
@@ -115,9 +119,9 @@ export default class Container extends Component {
       if ( !R_is(Object, component) || !(component instanceof Component) ) {
         throw new NotInstantiableException(`Callback returns no valid component constructor`);
       }
-    } else if ( R_is(Object, definition) ) {
+    } else if ( definition !== null && R_is(Object, definition) ) {
       const concrete = definition['namespace'];
-      const newParams: Paramters = this.mergeParams(namespace, params);
+      const newParams: Parameters = this.mergeParams(namespace, params);
 
       if ( concrete === namespace ) {
         component = this.build(concrete, [...args, newParams]);
@@ -125,7 +129,7 @@ export default class Container extends Component {
         component = this.get(concrete, [...args, newParams]);
       }
     } else if ( (definition as any) instanceof Component ) {
-      return this._singletons[namespace] = definition;
+      return this._singletons[namespace] = definition as unknown as T;
     } else {
       throw new InvalidConfigException(`Unexpected object definition type: ${typeof definition}`);
     }
@@ -169,16 +173,16 @@ export default class Container extends Component {
    *
    * // register a callable function
    * // The callable will be executed when container.get('comp') is called
-   * container->set('comp', (container, params, config) => {
+   * container.set('comp', (container, params, config): {
    *     return new Component(config);
    * });
    *
    * @param namespace Namespace name
-   * @param definition={} the definition associated with `$class`. See [[set()]] for more details.
+   * @param definition={} the definition associated with `$class`. See {@link set()} for more details.
    * @param params={} the list of constructor parameters. The parameters will be passed to the class
    * @return The container itself
    */
-  public set ( namespace: string, definition: DefinitionType = null, params: Paramters = {} ) {
+  public set ( namespace: string, definition: DefinitionType = null, params: Parameters = {} ) {
     this._definitions[namespace] = this.normalizeDefinition(namespace, definition);
     this._params[namespace] = params;
     delete this._singletons[namespace];
@@ -188,19 +192,19 @@ export default class Container extends Component {
   /**
    * Registers a namespace definition with this container and marks the class as a singleton class.
    *
-   * This method is similar to [[set()]] except that classes registered via this method will only have one
-   * instance. Each time [[get()]] is called, the same instance of the specified class will be returned.
+   * This method is similar to {@link set()} except that classes registered via this method will only have one
+   * instance. Each time {@link get()} is called, the same instance of the specified class will be returned.
    *
    * @param namespace Namespace name
-   * @param definition the definition associated with `$class`. See [[set()]] for more details.
+   * @param definition the definition associated with `$class`. See {@link set()} for more details.
    * @param params={} the list of constructor parameters. The parameters will be passed to the class
-   * constructor when [[get()]] is called.
+   * constructor when {@link get()} is called.
    * @return The container itself
    * @see set()
    */
-  public setSingleton ( namespace: string, definition: DefinitionType, params: Paramters = {} ) {
+  public setSingleton ( namespace: string, definition: DefinitionType, params: Parameters = {} ) {
     this._definitions[namespace] = this.normalizeDefinition(namespace, definition);
-    this._params[namespace] = params;
+    this._params[namespace] = params || {};
     this._singletons[namespace] = null;
     return this;
   }
@@ -270,7 +274,7 @@ export default class Container extends Component {
 
   /**
    * Returns the list of the object definitions or the loaded shared objects.
-   * @return The list of the object definitions or the loaded shared objects (type or ID => definition or instance).
+   * @return The list of the object definitions or the loaded shared objects (type or ID: definition or instance).
    */
   public getDefinitions (): DefinitionRegistry {
     return this._definitions;
@@ -303,12 +307,12 @@ export default class Container extends Component {
   }
 
   /**
-   * Merges the user-specified constructor parameters with the ones registered via [[set()]].
+   * Merges the user-specified constructor parameters with the ones registered via {@link set()}.
    * @param namespace - The namespace or alias name
-   * @param params the constructor parameters
+   * @param params - The constructor parameters
    * @return The merged parameters
    */
-  protected mergeParams ( namespace, params: Paramters ): Paramters {
+  protected mergeParams ( namespace, params: Parameters ): Parameters {
     if ( !(namespace in this._params) ) {
       return params;
     } else if ( !Object.keys(params).length ) {
@@ -319,7 +323,7 @@ export default class Container extends Component {
   }
 
   /**
-   * Invoke a no-async callback with parameters.
+   * Invoke a sync callback with parameters.
    *
    * This method allows invoking a callback and let type hinted parameter names to be
    * resolved as objects of the Container. It additionally allows calling function using named parameters.
@@ -327,7 +331,7 @@ export default class Container extends Component {
    * For example, the following callback may be invoked using the Container to resolve the formatter dependency:
    *
    * ```php
-   * formatString = async ( str ) => {
+   * formatString = str => {
    *    return str.toUppercase();
    * }
    * App.container.invoke(formatString, ['Hello World!']);
@@ -355,10 +359,11 @@ export default class Container extends Component {
    *
    * For example, the following callback may be invoked using the Container to resolve the formatter dependency:
    *
-   * ```php
-   * formatString = async ( str ) => {
+   * ```js
+   * formatString = async str => {
    *    return str.toUppercase();
    * }
+   *
    * App.container.invoke(formatString, ['Hello World!']);
    * ```
    *
@@ -373,12 +378,71 @@ export default class Container extends Component {
     return Reflect.apply(CallbackHelper.promisify(callback), thisArg || null, configuration);
   }
 
+  /**
+   * Registers class definitions within this container.
+   *
+   * @param definitions - Object of definitions. There are two allowed formats of an object.
+   * The first format:
+   *  - key: class name, or alias name. The key will be passed to the {@link set()} method
+   *    as a first argument `namespace`.
+   *  - value: the definition associated with `namespace`. Possible values are described in
+   *    {@link set()} documentation for the `definition` parameter.
+   *
+   * Example:
+   * @example
+   * container.setDefinitions({
+   *     'framework/web/Request': 'app/components/Request',
+   *     'framework/web/Response': {
+   *         'class': 'app/components/Response',
+   *         'format': 'json'
+   *     },
+   *     'foo/Bar': function () {
+   *         qux = new Qux;
+   *         foo = new Foo(qux);
+   *         return new Bar(foo);
+   *     }
+   * });
+   *
+   * @see set() to know more about possible values of definitions
+   */
   public setDefinitions ( definitions: DefinitionRegistry = {} ): void {
     if ( !R_is(Object, definitions) ) {
       throw new InvalidConfigException(`Definition must be an object but provided ${typeof definitions}`);
     }
+
+    for ( const [namespace, definition] of Object.entries(definitions) ) {
+      if ( R_is(Array, definition) ) {
+        const [_definition, params = {}] = definition;
+        this.set(namespace, _definition, params);
+        continue;
+      }
+
+      this.set(namespace, definition);
+    }
   }
 
-  public setSingletons ( singletons: SingletonRegistry = {} ): void {
+  /**
+   * Registers class definitions as singletons within this container by calling {@link setSingleton()}.
+   *
+   * @param singletons - Object of singleton definitions.
+   * See {@link setDefinitions()}
+   * for allowed formats of an object.
+   *
+   * @see {@link setDefinitions()} for allowed formats of singletons parameter
+   * @see {@link setSingleton()} to know more about possible values of definitions
+   */
+  public setSingletons ( singletons: SingletonBatch = {} ): void {
+    if ( !R_is(Object, singletons) ) {
+      throw new InvalidConfigException(`Singletons must be an object but provided ${typeof singletons}`);
+    }
+
+    for ( const [namespace, definitions] of Object.entries(singletons) ) {
+      if ( R_is(Array, definitions) ) {
+        this.setSingleton(namespace, definitions[0], definitions[1]);
+        continue;
+      }
+
+      this.setSingleton(namespace, definitions);
+    }
   }
 }

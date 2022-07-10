@@ -1,10 +1,13 @@
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @link https://github.com/blacksmoke26 Author Website
+ * @since 2022-07-04
+ */
+
 // Cores
 import Component from 'framework/base/Component';
 
-// Interfaces
-import { IProperties } from 'framework/interfaces/IBaseObject';
-
-export interface Paramters {
+export interface Parameters {
   [field: string]: any;
 }
 
@@ -19,13 +22,14 @@ export interface Arguments {
 
 export interface DefinitionContainer {
   namespace: string;
+
   [property: string]: any;
 }
 
 export type Definition = DefinitionContainer | Component | Function;
 
 export interface DefinitionRegistry {
-  [namespace: string]: Definition;
+  [namespace: string]: [definition: DefinitionType, params: Parameters] | DefinitionType;
 }
 
 export interface SingletonRegistry {
@@ -33,3 +37,7 @@ export interface SingletonRegistry {
 }
 
 export type DefinitionType = string | Definition | Function | Component | null;
+
+export interface SingletonBatch {
+  [namespace: string]: [definition: DefinitionType, params: Parameters] | DefinitionType;
+}
