@@ -118,22 +118,22 @@ export default class Module extends ServiceLocator {
   /**
    * The root directory of the module.
    */
-  private _basePath: string = '';
+  private _basePath = '';
 
   /**
    * The root directory that contains the controller classes for this module.
    */
-  private _controllerPath: string = '';
+  private _controllerPath = '';
 
   /**
    * The root directory that contains view files for this module
    */
-  private _viewPath: string = '';
+  private _viewPath = '';
 
   /**
    * The root directory that contains layout view files for this module.
    */
-  private _layoutPath: string = '';
+  private _layoutPath = '';
 
   /**
    * Child modules of this module
@@ -417,7 +417,7 @@ export default class Module extends ServiceLocator {
    * @return The module instance, `null` if the module does not exist.
    * @see hasModule()
    */
-  public getModule ( id: string, load: boolean = true ): Module | null {
+  public getModule ( id: string, load = true ): Module | null {
     const pos: number | false = StringHelper.strpos(id, '/');
 
     if ( pos !== false ) {
@@ -468,7 +468,7 @@ export default class Module extends ServiceLocator {
    * Loaded modules will be returned as objects, while unloaded modules as configuration arrays.
    * @return The modules (indexed by their IDs).
    */
-  public getModules ( loadedOnly: boolean = false ): ModuleMap {
+  public getModules ( loadedOnly = false ): ModuleMap {
     if ( loadedOnly ) {
       const modules = {};
       for ( const [id, module] of Object.entries(this._modules) ) {
@@ -575,7 +575,7 @@ export default class Module extends ServiceLocator {
       route = this.defaultRoute;
     }
 
-    let id: string = '';
+    let id = '';
     route = StringHelper.trim(route, '/');
 
     if ( StringHelper.strpos(route, '/') !== false ) {
@@ -627,8 +627,8 @@ export default class Module extends ServiceLocator {
   public createControllerByID ( id: string ): Controller | null {
     const pos: number | false = StringHelper.strrpos(id, '/');
 
-    let prefix: string = '';
-    let className: string = '';
+    let prefix = '';
+    let className = '';
 
     if ( pos === false ) {
       prefix = '';
@@ -638,7 +638,7 @@ export default class Module extends ServiceLocator {
       className = id.substring(pos + 1);
     }
 
-    if ( this.isIncorrectClassNameOrPrefix(className, prefix) ) {
+    if ( Module.isIncorrectClassNameOrPrefix(className, prefix) ) {
       return null;
     }
 
@@ -663,12 +663,12 @@ export default class Module extends ServiceLocator {
    * @param className Fully qualified classname (namespace)
    * @param prefix='' - Prefix if present
    */
-  private isIncorrectClassNameOrPrefix ( className: string, prefix: string = '' ): boolean {
-    if ( !/^[a-z][a-z0-9\/\-_]*$/.test(className) ) {
+  private static isIncorrectClassNameOrPrefix ( className: string, prefix = '' ): boolean {
+    if ( !/^[a-z][a-z0-9/\-_]*$/.test(className) ) {
       return true;
     }
 
-    if ( prefix.trim() && !/^[a-z0-9_\/]+$/i.test(prefix) ) {
+    if ( prefix.trim() && !/^[a-z0-9_/]+$/i.test(prefix) ) {
       return true;
     }
 

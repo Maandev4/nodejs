@@ -8,13 +8,11 @@ import Path from 'node:path';
 
 // Utils
 import FileHelper from 'framework/helpers/FileHelper';
-import * as path from 'path';
 import StringHelper from 'framework/helpers/StringHelper';
-import namespace from 'framework/decorators/namespace';
 
 // Constants
 /** Namespace validate regex pattern */
-const NAMESPACE_REGEX: RegExp = /^[a-z][a-z\-0-9]+(\/[a-z][a-z\-0-9]+)*(\/[A-Z][A-Za-z\-0-9]+)$/;
+const NAMESPACE_REGEX = /^[a-z][a-z\-0-9]+(\/[a-z][a-z\-0-9]+)*(\/[A-Z][A-Za-z\-0-9]+)$/;
 
 /**
  * Namespace helper.
@@ -30,7 +28,7 @@ export default class NamespaceHelper {
    * @param extension='ts' - Extension and treat it as a class name
    * @return Absolute file path
    */
-  public static toPath ( namespace: string, extension: string = 'ts' ): string {
+  public static toPath ( namespace: string, extension = 'ts' ): string {
     return FileHelper.resolveRelative(namespace)
       + '.' + extension.replace(/^\.+/g, '');
   }
@@ -45,12 +43,12 @@ export default class NamespaceHelper {
    * @param [extension='ts']
    * @return {string}
    */
-  public static toBasename ( namespace: string, extension: string = 'ts' ): string {
+  public static toBasename ( namespace: string, extension = 'ts' ): string {
     const filepath: string = NamespaceHelper.toPath(namespace, extension);
     return Path.basename(filepath, extension);
   }
 
-  public static load ( namespace: string, extension: string = 'ts' ) {
+  public static load ( namespace: string, extension = 'ts' ) {
     const filePath: string = NamespaceHelper.toPath(namespace, extension);
 
     try {
