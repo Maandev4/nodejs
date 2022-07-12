@@ -18,49 +18,47 @@ import { Configuration } from 'framework/base/CoreObject';
 declare var App;
 
 /**
- * Dispatcher manages a set of [[Target|log targets]].
+ * Dispatcher manages a set of {@link Target|log targets}.
  *
- * Dispatcher implements the [[dispatch()]]-method that forwards the log messages from a [[Logger]] to
- * the registered log [[targets]].
+ * Dispatcher implements the {@link dispatch()} that forwards the log messages from a {@link Logger} to
+ * the registered log {@link targets}
  *
- * An instance of Dispatcher is registered as a core application component and can be accessed using `Yii::$app->log`.
+ * An instance of Dispatcher is registered as a core application component and can be accessed by using `App.app.log`.
  *
  * You may configure the targets in application configuration, like the following:
  *
- * ```php
+ * ```js
  * [
- *     'components' => [
- *         'log' => [
- *             'targets' => [
- *                 'file' => [
- *                     'class' => 'yii\log\FileTarget',
- *                     'levels' => ['trace', 'info'],
- *                     'categories' => ['yii\*'],
+ *     'components': {
+ *         'log': {
+ *             'targets': {
+ *                 'file': {
+ *                     'class': 'framework/log/FileTarget',
+ *                     'levels': {'trace', 'info'},
+ *                     'categories': {'framework/*'},
  *                 ],
- *                 'email' => [
- *                     'class' => 'yii\log\EmailTarget',
- *                     'levels' => ['error', 'warning'],
- *                     'message' => [
- *                         'to' => 'admin@example.com',
- *                     ],
- *                 ],
- *             ],
- *         ],
- *     ],
- * ]
+ *                 'email': {
+ *                     'class': 'framework/log/EmailTarget',
+ *                     'levels': {'error', 'warning'},
+ *                     'message': {
+ *                         'to': 'admin@example.com',
+ *                     },
+ *                 },
+ *             },
+ *         },
+ *     },
+ * }
  * ```
  *
- * Each log target can have a name and can be referenced via the [[targets]] property as follows:
+ * Each log target can have a name and can be referenced via the {@link targets} property as follows:
  *
  * ```js
  * App::app.log.targets['file'].enabled = false;
  * ```
- * @author Qiang Xue <qiang.xue@gmail.com>
- * @since 2.0
  */
 export default class Dispatcher extends Component {
   /**
-   * @var array|Target[] the log targets. Each array element represents a single [[Target|log target]] instance
+   * The log targets. Each array element represents a single {@link Target|log targets} instance
    * or the configuration for creating the log target instance.
    */
   public targets: {[name: string]: Target} = {};
