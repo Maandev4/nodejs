@@ -81,7 +81,7 @@ export default class Container extends Component {
     }
 
     return {args, params};
-  };
+  }
 
   /**
    * Returns an instance of the requested class.

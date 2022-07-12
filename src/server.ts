@@ -4,14 +4,23 @@
  * @since 2022-07-02
  */
 
+// Env
+import dotEnv from 'dotenv';
+
 import Application from 'framework/web/Application';
-import App from 'framework/App';
 
-global.App = App;
+// Config
+import config from 'app/config/main';
 
-(new Application({}).run());
+declare var App;
 
-console.log(App.app.createController('profile'));
+dotEnv.config();
+
+(async () => {
+  const configuration = await config();
+  await (new Application(configuration)).run();
+})();
+
 /*
 console.log(new Event({test: 'case'}));
 

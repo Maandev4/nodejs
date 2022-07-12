@@ -30,7 +30,7 @@ export default class ActionEvent extends Event {
    * {@link Controller.EVENT_BEFORE_ACTION} may set this property to decide whether
    * to continue running the current action.
    */
-  public isValid: boolean = true;
+  public isValid = true;
 
   /**
    * Full qualified namespace

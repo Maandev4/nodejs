@@ -11,7 +11,7 @@ import { is as R_is } from 'ramda';
  * `namespace` and `className`.
  * @param path - Namespace path with filename (e.g., framework/base/FileHelper)
  */
-export default function namespace ( path: string = '' ): Function {
+export default function namespace ( path = '' ): Function {
   return function decorator ( Class ) {
     return ( ...args ) => {
       const config = args[args.length - 1] || null;

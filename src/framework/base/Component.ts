@@ -4,6 +4,9 @@
  * @since 2022-07-01
  */
 
+// Globals
+declare var App;
+
 import * as Op from 'object-path';
 
 // Core
@@ -15,6 +18,7 @@ import InvalidCallException from 'framework/base/InvalidCallException';
 
 // Helpers
 import CallbackHelper from 'framework/helpers/CallbackHelper';
+import StringHelper from 'framework/helpers/StringHelper';
 
 /**
  * Component is the base class that implements the *property*, *event* and *behavior* features.
@@ -224,6 +228,15 @@ export default class Component extends BaseObject {
         throw new InvalidCallException(`Setting read-only property: ${(name as string)}'`);
       }
       this[name] = value;
+      return;
+    } else if ( typeof name === 'string' && name.startsWith('on ') ) {
+      // on event: attach event handler
+      this.on(StringHelper.trim(name.substring(3)), value);
+      return;
+    } else if ( typeof name === 'string' && name.startsWith('as ') ) {
+      // on event: attach event handler
+      name = StringHelper.trim(name.substring(3));
+      this.attachBehavior(name, value instanceof Behavior ? value : App.createObject(value));
       return;
     }
 

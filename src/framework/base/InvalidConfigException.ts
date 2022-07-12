@@ -11,7 +11,7 @@ import Exception from 'framework/base/Exception';
  * InvalidConfigException represents an exception caused by incorrect object configuration.
  */
 export default class InvalidConfigException extends Exception {
-  constructor ( message: string = '' ) {
+  constructor ( message = '' ) {
     super(message || 'Invalid Configuration');
   }
 }

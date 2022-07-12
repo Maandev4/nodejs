@@ -16,6 +16,9 @@ import Container from 'framework/di/Container';
 class App extends BaseApp {
 }
 
+// Set globals
+global.App = App;
+
 App.container = new Container({});
 
 export default App;

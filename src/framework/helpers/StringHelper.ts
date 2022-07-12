@@ -26,6 +26,20 @@ export default class StringHelper {
   }
 
   /**
+   * Binary safe string comparison of the first n characters
+   * @param string1 - The first string
+   * @param string2 - The second string
+   * @param length - Number of characters to use in the comparison
+   * @returns Less 0 if <i>string1</i> is less than <i>string2</i>; &gt; 0 if <i>string1</i>
+   * is greater than <i>string2</i>, and 0 if they are equal.
+   */
+  public static strncmp ( string1: string, string2: string, length: number ): number {
+    const s1 = (string1 + '').substring(0, length)
+    const s2 = (string2 + '').substring(0, length)
+    return (s1 === s2 ? 0 : (s1 > s2 ? 1 : -1))
+  }
+
+  /**
    * Make a string's first character uppercase
    * @param str - The input string
    * @param lowercase=false - Transform other than first chars to lowercase first

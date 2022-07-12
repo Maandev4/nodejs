@@ -40,4 +40,33 @@ export default class ArrayHelper {
   public static notContains ( list: Array<any>, check: Array<any> ): boolean {
     return !!check.filter(v => list.includes(v)).length;
   }
+
+  /**
+   * Sort an array by key in reverse order
+   * @param input - The input array or object
+   * @param sortArrays=false
+   * @returns A sorted object or array
+   */
+  public static krsort ( input: any, sortArrays = false ): any {
+    if ( !input || typeof input !== 'object' ) {
+      return input;
+    }
+
+    if ( Array.isArray(input) ) {
+      const newArr = input.map(( item ) => ArrayHelper.krsort(item, sortArrays));
+      if ( sortArrays ) {
+        newArr.sort();
+      }
+      return newArr;
+    }
+
+    const ordered = {};
+    Object.keys(input)
+      .sort()
+      .forEach(( key ) => {
+        ordered[key] = ArrayHelper.krsort(input[key], sortArrays);
+      });
+
+    return ordered;
+  }
 }

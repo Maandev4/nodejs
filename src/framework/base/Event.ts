@@ -32,14 +32,14 @@ export default class Event extends BaseObject {
    * The event name, This property is set by [[Component.trigger()]] and [[trigger()]].
    * Event handlers may use this property to check what event it is handling.
    */
-  public name: string = '';
+  public name = '';
 
   /**
    * Whether the event is handled. Defaults to `false`.
    * When a handler sets this to be `true`, the event processing will stop and
    * ignore the rest of the uninvoked event handlers.
    */
-  public handled: boolean = false;
+  public handled = false;
 
   /**
    * The data that is passed to [[Component.on()]] when attaching an event handler.
@@ -84,7 +84,7 @@ export default class Event extends BaseObject {
    * handler list.
    * @see off()
    */
-  public static on ( name: string, handler: Function, data: any = null, append: boolean = true ): void {
+  public static on ( name: string, handler: Function, data: any = null, append = true ): void {
     if ( !Op.has(Event._events, name) ) {
       Event._events[name] = [];
     }
@@ -117,7 +117,7 @@ export default class Event extends BaseObject {
     }
 
     // plain event names
-    let removed: boolean = false;
+    let removed = false;
     let i = 0;
 
     for ( const data of Object.values(Event._events[name]) ) {

@@ -741,16 +741,18 @@ export default class Module extends ServiceLocator {
    * if a component isn't defined in the module, it will be looked up in the parent module.
    * The parent module may be the application.
    */
-  public get ( id, throwException = true ) {
+  public get<T> ( id: string | symbol, throwException: boolean = true ): T | null {
     if ( !this.module ) {
-      return super.get(id, throwException);
+      return super.get<T>(id, throwException);
     }
 
-    let component: any = super.get(id, false);
+    let component: T | null = super.get<T>(id, false);
+
     if ( !component ) {
-      component = this.module.get(id, throwException);
+      component = this.module.get<T>(id, throwException);
     }
-    return component;
+
+    return (component as unknown) as T;
   }
 
   /**

@@ -23,18 +23,18 @@ export default class Controller extends Component implements ViewContextInterfac
    * @event ActionEvent an event raised right before executing a controller action.
    * You may set {@link ActionEvent#isValid()} to be false to cancel the action execution.
    */
-  readonly EVENT_BEFORE_ACTION: string = 'beforeAction';
+  static readonly EVENT_BEFORE_ACTION: string = 'beforeAction';
 
   /**
    * @event ActionEvent an event raised right after executing a controller action.
    */
-  readonly EVENT_AFTER_ACTION: string = 'afterAction';
+  static readonly EVENT_AFTER_ACTION: string = 'afterAction';
 
   /**
    * The ID of this controller.
    * @type {string}
    */
-  public id: string = '';
+  public id = '';
 
   /**
    * @type {Module} the module that this controller belongs to.
@@ -45,7 +45,7 @@ export default class Controller extends Component implements ViewContextInterfac
    * @var string the ID of the action that is used when the action ID is not specified
    * in the request. Defaults to 'index'.
    */
-  public defaultAction: string = 'index';
+  public defaultAction = 'index';
 
   /**
    * The name of the layout to be applied to this controller's views.
@@ -99,6 +99,14 @@ export default class Controller extends Component implements ViewContextInterfac
     super(config);
     this.id = id;
     this.module = module;
+  }
+
+
+  /**
+   * @inheritDoc
+   */
+  init () {
+    super.init();
   }
 
   public actions () {

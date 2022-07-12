@@ -107,7 +107,8 @@ export class ServiceLocator extends Component {
       }
 
       if ( typeof id === 'string' ) {
-        return this._components[id] = App.createObject<T>(id);
+        const config = id in this._definitions ? this._definitions[id] : id;
+        return this._components[id] = (App.createObject(config) as unknown) as T;
       }
     }
 
@@ -236,20 +237,7 @@ export class ServiceLocator extends Component {
     }
 
     for ( const [id, component] of Object.entries(components) ) {
-      if ( component instanceof Component ) {
-        this.set(id, component);
-        continue;
-      }
-
-      if ( R_is(Object, components) ) {
-        if ( !('namespace' in (component as Object)) ) {
-          throw new InvalidConfigException(`The configuration for the '${id}' component must contain a 'namespace' property.`);
-        }
-
-        this.set(id, component);
-      }
-
-      throw new InvalidConfigException(`Unexpected configuration type for the ${id} component: ${typeof component}`);
+      this.set(id, component);
     }
   }
 }

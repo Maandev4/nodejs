@@ -17,4 +17,4 @@ export default class Exception extends Error {
       this.stack = (new Error(message)).stack;
     }
   }
-};
+}
