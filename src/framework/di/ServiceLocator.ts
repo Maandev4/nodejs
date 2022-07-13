@@ -46,7 +46,7 @@ export type TypeDefinition = string | Component | Function
  *
  * Because {@link Module} extends from ServiceLocator, modules and the application are all service locators.
  */
-export class ServiceLocator extends Component {
+export default class ServiceLocator extends Component {
   /**
    * Shared component instances indexed by their IDs
    */

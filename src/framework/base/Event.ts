@@ -5,6 +5,7 @@
  */
 
 import * as Op from 'object-path';
+import { is as R_is } from 'ramda';
 
 // Core
 import BaseObject from 'framework/base/BaseObject';
@@ -33,6 +34,14 @@ export default class Event extends BaseObject {
    * Event handlers may use this property to check what event it is handling.
    */
   public name = '';
+
+  /**
+   * The sender of this event. If not set, this property will be
+   * set as the object whose `trigger()` method is called.
+   * This property may also be a `null` when this event is a
+   * class-level event which is triggered in a static context.
+   */
+  public sender: any = null;
 
   /**
    * Whether the event is handled. Defaults to `false`.
@@ -179,7 +188,11 @@ export default class Event extends BaseObject {
     const eventHandlers: Array<EventRegistry> = Op.get(Event._events, name, []);
 
     for await ( const [handler, data] of eventHandlers ) {
-      event.data = data;
+      if ( R_is(Object, data) && (R_is(Object, event.data) || !event.data) ) {
+        event.data = {...data, ...(event.data || {})};
+      } else {
+        event.data = event.data || data;
+      }
       const callback = CallbackHelper.promisify(handler);
       await callback.call(null, event);
       if ( event.handled ) {

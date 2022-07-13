@@ -6,11 +6,13 @@
 
 // Env
 import dotEnv from 'dotenv';
+import { FastifyRequest } from 'fastify';
 
 import Application from 'framework/web/Application';
 
 // Config
 import config from 'app/config/main';
+import Server from 'framework/fastify/Server';
 
 declare var App;
 
@@ -19,6 +21,11 @@ dotEnv.config();
 (async () => {
   const configuration = await config();
   await (new Application(configuration)).run();
+  console.log('Require', require.main?.filename);
+  App.getServer().on(Server.EVENT_ON_REQUEST, async event => {
+    const request: FastifyRequest = event.data.request;
+    console.log('Request:', request.hostname);
+  });
 })();
 
 /*

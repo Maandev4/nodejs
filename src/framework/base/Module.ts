@@ -7,7 +7,7 @@
 import { is as R_is } from 'ramda';
 
 // Core
-import { ServiceLocator } from 'framework/di/ServiceLocator';
+import ServiceLocator from 'framework/di/ServiceLocator';
 
 // Types
 export type Params = { [key: string]: any };

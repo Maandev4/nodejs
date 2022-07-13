@@ -261,7 +261,7 @@ export default abstract class Application extends Module {
           component = this.get(mixed);
         } else if ( this.hasModule(mixed) ) {
           component = this.getModule(mixed);
-        } else if ( StringHelper.strpos(mixed, '\\') === false ) {
+        } else if ( StringHelper.strpos(mixed, '/') === false ) {
           throw new InvalidConfigException(`Unknown bootstrapping component ID: '${mixed}'`);
         }
       }

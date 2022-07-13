@@ -8,6 +8,7 @@
 declare var App;
 
 import * as Op from 'object-path';
+import { is as R_is } from 'ramda';
 
 // Core
 import BaseObject from 'framework/base/BaseObject';
@@ -451,7 +452,11 @@ export default class Component extends BaseObject {
     const eventHandlers: Array<EventRegistry> = Op.get(this._events, name, []);
 
     for await ( const [handler, data] of eventHandlers ) {
-      event.data = data;
+      if ( R_is(Object, data) && (R_is(Object, event.data) || !event.data) ) {
+        event.data = {...data, ...(event.data || {})};
+      } else {
+        event.data = event.data || data;
+      }
       const callback = CallbackHelper.promisify(handler);
       await callback.call(null, event);
       if ( event.handled ) {

@@ -17,7 +17,7 @@ import CallbackHelper from 'framework/helpers/CallbackHelper';
 // Exceptions
 import InvalidConfigException from 'framework/base/InvalidConfigException';
 import NamespaceHelper from 'framework/helpers/NamespaceHelper';
-import NotInstantiableException from 'framework/base/NotInstantiableException';
+import NotInstantiableException from 'framework/di/NotInstantiableException';
 
 // Interfaces
 import { DefinitionRegistry, SingletonRegistry, DefinitionType, Definition, SingletonBatch } from 'framework/di/Container.d';

@@ -4,16 +4,25 @@
  * @since 2022-07-04
  */
 
+// Global vars
+declare var App;
+
 // Core
 import Component from 'framework/base/Component';
-
-// Interfaces
-import ViewContextInterface from 'framework/interfaces/ViewContextInterface';
-import { Configuration } from 'framework/base/CoreObject';
 import Module from 'framework/base/Module';
 import Action from 'framework/base/Action';
 import Application from 'framework/base/Application';
 import View from 'framework/base/View';
+import Instance from 'framework/di/Instance';
+import Request from 'framework/base/Request';
+import Response from 'framework/base/Response';
+
+// Types
+import { Configuration } from 'framework/base/CoreObject';
+
+// Interfaces
+import ViewContextInterface from 'framework/interfaces/ViewContextInterface';
+import ActionEvent from 'framework/base/ActionEvent';
 
 /**
  * Controller is the base class of web controllers.
@@ -101,15 +110,38 @@ export default class Controller extends Component implements ViewContextInterfac
     this.module = module;
   }
 
-
   /**
    * @inheritDoc
    */
   init () {
     super.init();
+    this.request = Instance.ensure(this.request, Request.prototype.namespace);
+    this.response = Instance.ensure(this.response, Response.prototype.namespace);
   }
 
-  public actions () {
+  /**
+   * Declares external actions for the controller.
+   *
+   * This method is meant to be overwritten to declare external actions for the controller.
+   * It should return an array, with array keys being action IDs, and array values the corresponding
+   * action namespaces or action configuration object. For example,
+   *
+   * ```js
+   * return {
+   *     action1: 'app/components/Action1',
+   *     action2: {
+   *         namespace: 'app/components/Action2',
+   *         property1: 'value1',
+   *         property2: 'value2',
+   *     },
+   * };
+   * ```
+   *
+   * {@link App.createObject()} will be used later to create the requested action
+   * using the configuration provided here.
+   */
+  public actions (): { [action: string]: string | { namespace: string, [property: string]: any } } {
+    return {};
   }
 
   /**
@@ -118,13 +150,25 @@ export default class Controller extends Component implements ViewContextInterfac
    * @param id - The ID of the action to be executed.
    * @param params - The parameters (name-value pairs) to be passed to the action.
    * @return - The result of the action.
-   * @throws {InvalidRouteError} - If the requested action ID cannot be resolved into an action successfully.
+   * @throws {InvalidRouteException} - If the requested action ID cannot be resolved into an action successfully.
    * @see createAction()
    */
   public runAction ( id, params = {} ) {
+    // todo: implement logic here
   }
 
-  public run ( route: string, params = {} ) {
+  /**
+   * Runs a request specified in terms of a route.
+   * The route can be either an ID of an action within this controller or a complete route consisting
+   * of module IDs, controller ID and action ID. If the route starts with a slash '/', the parsing of
+   * the route will start from the application; otherwise, it will start from the parent module of this controller.
+   * @param route - The route to be handled, e.g., 'view', 'comment/view', '/admin/comment/view'.
+   * @param params - The parameters to be passed to the action.
+   * @return mixed the result of the action.
+   * @see runAction()
+   */
+  public run ( route: string, params: Array<any> = [] ) {
+    // todo: implement logic here
   }
 
   /**
@@ -143,23 +187,95 @@ export default class Controller extends Component implements ViewContextInterfac
    * The method first checks if the action ID has been declared in {@link actions}. If so,
    * it will use the configuration declared there to create the action object.
    * If not, it will look for a controller method whose name is in the format of `actionXyz`
-   * where `xyz` is the action ID. If found, an [[InlineAction]] representing that
+   * where `xyz` is the action ID. If found, an {@link InlineAction} representing that
    * method will be created and returned.
-   * @param id the action ID.
-   * @return Action|null the newly created action instance. Null if the ID doesn't resolve into any action.
+   * @param id - The action ID.
+   * @return The newly created action instance. Null if the ID doesn't resolve into any action.
    */
-  public createAction ( id: string ) {
-    // TODO: implement logic here
+  public createAction ( id: string ): Action | null {
+    if ( !id.trim() ) {
+      id = this.defaultAction;
+    }
+
+    const actionMap = this.actions();
+    if ( id in actionMap ) {
+      return App.createObject(actionMap[id], [id, {}], this);
+    }
+
+    if ( /^(?:[a-z0-9_]+-)*[a-z0-9_]+$/.test(id) ) {
+      // todo: implement logic here
+      //const methodName = 'action' + str_replace(' ', '', ucwords(str_replace('-', ' ', $id)));
+      /*if (method_exists($this, $methodName)) {
+        $method = new \ReflectionMethod($this, $methodName);
+        if ($method->isPublic() && $method->getName() === $methodName) {
+          return new InlineAction($id, $this, $methodName);
+        }
+      }*/
+    }
+
+    return null;
   }
 
-  public beforeAction ( action: Action ): boolean {
-    // TODO: implement logic here
-    return true;
+  /**
+   * This method is invoked right before an action is executed.
+   *
+   * The method will trigger the {@link EVENT_BEFORE_ACTION} event. The return value of the method
+   * will determine whether the action should continue to run.
+   *
+   * In case the action should not run, the request should be handled inside the `beforeAction` code
+   * by either providing the necessary output or redirecting the request. Otherwise, the response will be empty.
+   *
+   * If you override this method, your code should look like the following:
+   *
+   * ```js
+   * public async beforeAction ( action: Action ): Promise<boolean> {
+   *   // your custom code here, if you want the code to run before action filters,
+   *   // which are triggered on the 'EVENT_BEFORE_ACTION' event, e.g. PageCache or AccessControl
+   *
+   *   if ( !(await super.beforeAction(action)) ) {
+   *     return false;
+   *   }
+   *
+   *   // other custom code here
+   *
+   *   return true; // or false to not run the action
+   * }
+   * ```
+   *
+   * @param action - The action to be executed.
+   * @return Whether the action should continue to run.
+   */
+  public async beforeAction ( action: Action ): Promise<boolean> {
+    const event = new ActionEvent(action);
+    await this.trigger(Controller.EVENT_BEFORE_ACTION, event);
+    return event.isValid;
   }
 
-  public afterAction ( action: Action, result: any ): boolean {
-    // TODO: implement logic here
-    return true;
+  /**
+   * This method is invoked right after an action is executed.
+   *
+   * The method will trigger the {@link EVENT_AFTER_ACTION} event. The return value of the method
+   * will be used as the action return value.
+   *
+   * If you override this method, your code should look like the following:
+   *
+   * ```js
+   * public async afterAction ( action: Action, result: any ): Promise<any> {
+   *     result = await super.afterAction(action, result);
+   *     // your custom code here
+   *     return result;
+   * }
+   * ```
+   *
+   * @param action - The action just executed.
+   * @param result - The action return result.
+   * @return The processed action result.
+   */
+  public async afterAction ( action: Action, result: any ): Promise<any> {
+    const event = new ActionEvent(action);
+    event.result = result;
+    await this.trigger(Controller.EVENT_AFTER_ACTION, event);
+    return event.result;
   }
 
   /**
